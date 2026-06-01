@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cumulative Probability</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rainbow-gradient: linear-gradient(90deg, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982);
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e0f11;
+    --surface: #16181c;
+    --border: #2a2d34;
+    --text: #e2e4e9;
+    --muted: #5a5f6e;
+    --accent: #4fc3a1;
+    --accent-dim: rgba(79,195,161,0.12);
+    --row-alt: #13151a;
+    --input-bg: #1e2028;
+    --header-bg: #1a1c22;
+  }
+  :root[data-theme="light"] {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --border: #dde0e8;
+    --text: #1a1d26;
+    --muted: #8a8f9e;
+    --accent: #1a8f6f;
+    --accent-dim: rgba(26,143,111,0.08);
+    --row-alt: #f9fafb;
+    --input-bg: #f0f1f4;
+    --header-bg: #eaecf0;
+  }
+  :root[data-theme="rainbow"] {
+    --bg: #0e0f11;
+    --surface: #16181c;
+    --border: #2a2d34;
+    --text: #e2e4e9;
+    --muted: #5a5f6e;
+    --accent: #ff00ff;
+    --accent-dim: rgba(255,0,255,0.12);
+    --row-alt: #13151a;
+    --input-bg: #1e2028;
+    --header-bg: #1a1c22;
+  }
+  :root[data-theme="rainbow-light"] {
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --border: #dde0e8;
+    --text: #1a1d26;
+    --muted: #8a8f9e;
+    --accent: #ff00ff;
+    --accent-dim: rgba(255,0,255,0.08);
+    --row-alt: #f9fafb;
+    --input-bg: #f0f1f4;
+    --header-bg: #eaecf0;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .shell {
+    width: 100%;
+    max-width: 640px;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  :root[data-theme="rainbow"] h1,
+  :root[data-theme="rainbow-light"] h1 {
+    display: inline-block;
+    background: linear-gradient(90deg, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: hue-fwd 4s linear infinite;
+  }
+
+  .toggle-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .toggle-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .preset-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background-color 0.15s;
+    flex: 1;
+  }
+  .preset-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+  .preset-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 520px) {
+    .controls { grid-template-columns: 1fr; }
+  }
+
+  .field label {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .field input {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field input:focus { border-color: var(--accent); }
+  .field input.invalid { border-color: #e05555; }
+
+  .error-msg {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: #e05555;
+    min-height: 16px;
+    margin-bottom: 16px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  thead tr {
+    background: var(--header-bg);
+  }
+
+  th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 10px 16px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  th:first-child { width: 45%; }
+  th:not(:first-child) { text-align: right; }
+
+  td {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    padding: 9px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  td:not(:first-child) { text-align: right; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: var(--row-alt); }
+
+  .col-periods { color: var(--muted); }
+  .col-single { color: var(--text); }
+  .col-cum { font-weight: 600; color: var(--accent); }
+  
+  .skull-wrap {
+    position: relative;
+    display: inline-block;
+    font-size: 28px;
+    line-height: 1;
+  }
+  .skull-base {
+    opacity: 0.15;
+    filter: grayscale(1);
+  }
+  .skull-filled {
+    position: absolute;
+    top: 0; left: 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  :root[data-theme="rainbow"] .skull-filled,
+  :root[data-theme="rainbow-light"] .skull-filled {
+    filter: hue-rotate(var(--skull-hue, 0deg));
+  }
+  .bar-cell {
+    position: relative;
+    overflow: hidden;
+  }
+  .bar-bg {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: var(--bar-pct, 0%);
+    background: var(--accent-dim);
+    transition: width 0.3s ease;
+  }
+  :root[data-theme="rainbow"] .bar-bg,
+  :root[data-theme="rainbow-light"] .bar-bg {
+    background: linear-gradient(90deg, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982, #E40303);
+    background-size: 200% 100%;
+    animation: flow-right 6s linear infinite;
+    opacity: 0.6;
+    box-shadow: inset -2px 0 0 rgba(255,255,255,0.4);
+  }
+  @keyframes flow-right {
+    from { background-position: 100% 0%; }
+    to   { background-position: 0% 0%; }
+  }
+
+  .bar-val { font-weight: 600; color: var(--accent); }
+  :root[data-theme="rainbow"] .bar-val,
+  :root[data-theme="rainbow-light"] .bar-val {
+    background: linear-gradient(90deg, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: hue-fwd 4s linear infinite;
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <h1>Cumulative Probability</h1>
+    <div style="display: flex; gap: 8px;">
+      <button class="toggle-btn" onclick="toggleTheme()" id="themeBtn">☀ Light</button>
+      <button class="toggle-btn" onclick="toggleRainbow()" id="rainbowBtn">🏳️‍🌈 Im hella ghae</button>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="field">
+      <label>Drop Rate (%)</label>
+      <input type="text" id="baseRate" value="0.01" placeholder="e.g., 0.05 for 0.05%" oninput="update()">
+      <div style="display: flex; gap: 6px; margin-top: 8px;">
+        <button class="preset-btn" data-base="0.01" onclick="setBaseRate(0.01)">0.01%</button>
+        <button class="preset-btn" data-base="0.1" onclick="setBaseRate(0.1)">0.1%</button>
+        <button class="preset-btn" data-base="1" onclick="setBaseRate(1)">1%</button>
+        <button class="preset-btn" data-base="10" onclick="setBaseRate(10)">10%</button>
+      </div>
+      <div style="display: flex; gap: 6px; margin-top: 6px;">
+        <button class="preset-btn" onclick="resetAll()" style="flex: 1;">Reset</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Server Multiplier</label>
+      <input type="text" id="multiplier" value="1" oninput="update()">
+      <div style="display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;">
+        <button class="preset-btn" data-mul="1" onclick="setMultiplier(1)">1×</button>
+        <button class="preset-btn" data-mul="5" onclick="setMultiplier(5)">5×</button>
+        <button class="preset-btn" data-mul="10" onclick="setMultiplier(10)">10×</button>
+        <button class="preset-btn" data-mul="50" onclick="setMultiplier(50)">50×</button>
+        <button class="preset-btn" data-mul="100" onclick="setMultiplier(100)">100×</button>
+        <button class="preset-btn" data-mul="500" onclick="setMultiplier(500)">500×</button>
+      </div>
+      <div style="display: flex; gap: 6px; margin-top: 6px;">
+        <button class="preset-btn" onclick="resetMultiplier()" style="flex: 1;">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="error-msg" id="errMsg"></div>
+
+  <div style="text-align: center; margin-bottom: 16px; font-family: 'IBM Plex Mono', monospace; font-size: 16px; color: var(--muted);">
+    Effective rate: <span id="effectiveRateDisplay" style="color: var(--accent); font-weight: 600;">—</span>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Target Cum. Prob.</th>
+        <th>Periods Required</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div style="margin-top: 24px; display: flex; flex-direction: column; align-items: center;">
+    <div class="field" style="width: 50%;">
+      <label>Kill Count</label>
+      <input type="number" id="killCount" value="" placeholder="e.g. 500" oninput="updateSkulls()" min="0">
+    </div>
+    <div id="skullDisplay" style="margin-top: 16px; text-align: center;">
+      <div style="display: flex; justify-content: center; align-items: center; gap: 4px; flex-wrap: wrap;" id="skullRow"></div>
+      <div style="margin-top: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; color: var(--accent);" id="skullLabel"></div>
+      <div style="margin-top: 32px; font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 600; letter-spacing: 0.08em; color: var(--accent);" id="memeLabel"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const TARGETS = [0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 0.99];
+
+  const MEME_BUCKETS = {
+    '1-20': ['MAXIMUM COPIUM', 'FARMING HOPIUM', 'THIS WILL BE EASY', 'DELUSION% SPEEDRUN'],
+    '21-40': ['PAIN BEGINS', 'HOPIUM STOCKS UP 📈', 'TRUST BRO JUST GRIND', 'HUFFING THAT COPIUM'],
+    '41-60': ['THE GRIND AWAKENS', 'HALFWAY TO SUFFERING', 'COIN FLIP WITH MY SOUL', 'PAIN OR GLORY'],
+    '61-80': ['PAIN IS REAL NOW', 'NO TURNING BACK', 'SPEEDRUN LOOKING CLEAN', 'SUFFERING.EXE'],
+    '81-95': ['ALMOST THERE (AT COST)', 'DON\'T BREAK NOW', 'LOCKED IN MISERY', 'SO CLOSE SO TIRED'],
+    '96-98': ['ONE MORE PUSH', 'THE END IN SIGHT', 'WORTH IT? ASKING', 'FINAL FORM SUFFERING'],
+    '99': ['THE 1% THAT BREAKS YOU', 'ONE MORE TIME', 'GAME READS YOUR TEARS', 'LAST CHANCE CASINO'],
+    '100': ['IT\'S OVER', 'WHAT DID THIS COST', 'HOLLOW BUT WON', 'FREEDOM AT WHAT PRICE']
+  };
+
+  function getMeme(probPercent) {
+    let bucket;
+    if (probPercent < 1) return '';
+    else if (probPercent <= 20) bucket = '1-20';
+    else if (probPercent <= 40) bucket = '21-40';
+    else if (probPercent <= 60) bucket = '41-60';
+    else if (probPercent <= 80) bucket = '61-80';
+    else if (probPercent <= 95) bucket = '81-95';
+    else if (probPercent < 99) bucket = '96-98';
+    else if (probPercent === 99) bucket = '99';
+    else bucket = '100';
+
+    const options = MEME_BUCKETS[bucket];
+    return options[Math.floor(Math.random() * options.length)];
+  }
+
+  function getRandomColor() {
+    const colors = [
+      '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3',
+      '#ff1493', '#00bfff', '#32cd32', '#ff69b4', '#00ced1', '#ffd700', '#ff4500'
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  function getRandomRainbowGradient() {
+    const baseColors = ['#E40303', '#FF8C00', '#FFED00', '#008026', '#24408E', '#732982'];
+    const startIdx = Math.floor(Math.random() * baseColors.length);
+    const rotated = [...baseColors.slice(startIdx), ...baseColors.slice(0, startIdx)];
+    return `linear-gradient(90deg, ${rotated.join(', ')})`;
+  }
+
+  function initializeRandomColors() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    if (current === 'rainbow' || current === 'rainbow-light') {
+      const gradient = getRandomRainbowGradient();
+      document.documentElement.style.setProperty('--rainbow-gradient', gradient);
+    }
+  }
+
+  function updatePresetHighlights() {
+    const baseVal = parseFloat(document.getElementById('baseRate').value.trim());
+    const mulVal  = parseFloat(document.getElementById('multiplier').value.trim());
+    document.querySelectorAll('[data-base]').forEach(btn => {
+      btn.classList.toggle('active', parseFloat(btn.dataset.base) === baseVal);
+    });
+    document.querySelectorAll('[data-mul]').forEach(btn => {
+      btn.classList.toggle('active', parseFloat(btn.dataset.mul) === mulVal);
+    });
+  }
+
+  function setBaseRate(rate) {
+    document.getElementById('baseRate').value = rate;
+    update();
+  }
+
+  function setMultiplier(mul) {
+    document.getElementById('multiplier').value = mul;
+    update();
+  }
+
+  function resetAll() {
+    document.getElementById('baseRate').value = '0.01';
+    document.getElementById('multiplier').value = '1';
+    update();
+  }
+
+  function resetMultiplier() {
+    document.getElementById('multiplier').value = '1';
+    update();
+  }
+
+  let currentTheme = 'dark'; // 'dark' or 'light'
+  let rainbowMode = false;
+
+  function updateThemeClass() {
+    const theme = rainbowMode ? (currentTheme === 'light' ? 'rainbow-light' : 'rainbow') : currentTheme;
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+
+  function toggleTheme() {
+    currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    updateThemeClass();
+    document.getElementById('themeBtn').textContent = currentTheme === 'dark' ? '☀ Light' : '☾ Dark';
+  }
+
+  function toggleRainbow() {
+    rainbowMode = !rainbowMode;
+    updateThemeClass();
+    document.getElementById('rainbowBtn').textContent = rainbowMode ? '❓ Y r u ghae?' : '🏳️‍🌈 Im hella ghae';
+    if (rainbowMode) {
+      initializeRandomColors();
+    }
+  }
+
+  let lastEffectiveRate = 0;
+
+  function updateSkulls() {
+    const killRaw = document.getElementById('killCount').value.trim();
+    const kills = parseInt(killRaw);
+    const display = document.getElementById('skullDisplay');
+    const row = document.getElementById('skullRow');
+    const lbl = document.getElementById('skullLabel');
+
+    if (!killRaw || isNaN(kills) || kills < 0 || lastEffectiveRate <= 0) {
+      row.innerHTML = '';
+      for (let i = 0; i < 10; i++) {
+        const wrap = document.createElement('span');
+        wrap.className = 'skull-wrap';
+        const base = document.createElement('span');
+        base.className = 'skull-base';
+        base.textContent = i === 9 ? '🪦' : '💀';
+        const fill = document.createElement('span');
+        fill.className = 'skull-filled';
+        fill.textContent = i === 9 ? '🪦' : '💀';
+        fill.style.width = '0%';
+        wrap.appendChild(base);
+        wrap.appendChild(fill);
+        row.appendChild(wrap);
+      }
+      lbl.textContent = '';
+      document.getElementById('memeLabel').textContent = '';
+      return;
+    }
+    const prob = cumProb(lastEffectiveRate, kills);
+    const filled = prob * 10; // out of 10 skulls
+
+    row.innerHTML = '';
+    for (let i = 0; i < 10; i++) {
+      const wrap = document.createElement('span');
+      wrap.className = 'skull-wrap';
+
+      const base = document.createElement('span');
+      base.className = 'skull-base';
+      base.textContent = i === 9 ? '🪦' : '💀';
+
+      const fill = document.createElement('span');
+      fill.className = 'skull-filled';
+      fill.textContent = i === 9 ? '🪦' : '💀';
+
+      if (i < Math.floor(filled)) {
+        fill.style.width = '100%';
+      } else if (i === Math.floor(filled)) {
+        const partial = (filled - Math.floor(filled)) * 100;
+        fill.style.width = partial.toFixed(1) + '%';
+      } else {
+        fill.style.width = '0%';
+      }
+
+      wrap.appendChild(base);
+      wrap.appendChild(fill);
+      row.appendChild(wrap);
+    }
+
+    lbl.textContent = `~${(prob * 100).toFixed(2)}% cumulative probability`;
+    document.getElementById('memeLabel').textContent = getMeme(prob * 100);
+  }
+
+  function periodsForTarget(p, target) {
+    // 1 - (1-p)^n >= target  =>  n >= log(1-target)/log(1-p)
+    if (p <= 0) return Infinity;
+    if (p >= 1) return 1;
+    return Math.ceil(Math.log(1 - target) / Math.log(1 - p));
+  }
+
+  function cumProb(p, n) {
+    return 1 - Math.pow(1 - p, n);
+  }
+
+  function fmt(v, decimals) {
+    return (v * 100).toFixed(decimals) + '%';
+  }
+
+  function update() {
+    const baseRaw = document.getElementById('baseRate').value.trim();
+    const mulRaw  = document.getElementById('multiplier').value.trim();
+    const errEl   = document.getElementById('errMsg');
+    const brInput = document.getElementById('baseRate');
+    const mulInput = document.getElementById('multiplier');
+
+    const basePercent = parseFloat(baseRaw);
+    const base = basePercent / 100;  // Convert from percentage to decimal
+    const mul  = parseFloat(mulRaw);
+
+    brInput.classList.toggle('invalid', isNaN(basePercent) || basePercent <= 0 || basePercent >= 100);
+    mulInput.classList.toggle('invalid', isNaN(mul) || mul <= 0);
+
+    if (isNaN(basePercent) || basePercent <= 0 || basePercent >= 100) {
+      errEl.textContent = 'Base rate must be a number between 0 and 100 (exclusive).';
+      return;
+    }
+    if (isNaN(mul) || mul <= 0) {
+      errEl.textContent = 'Multiplier must be a positive number.';
+      return;
+    }
+    errEl.textContent = '';
+
+    // Build rows for each multiplier step up to max, showing one row per target probability
+    // Columns: target %, periods needed (at base rate), single-period prob at that multiplier step? 
+    // Re-read: "multiplier of this base rate e.g. 5, 10, 20"
+    // Interpretation: user sets base rate and a multiplier; effective per-period rate = base * multiplier
+    // Table shows, for each target cumulative probability threshold, how many periods are needed.
+
+    const effectiveRate = Math.min(base * mul, 0.9999999);
+
+    lastEffectiveRate = effectiveRate;
+    updateSkulls();
+
+    document.getElementById('effectiveRateDisplay').textContent = (effectiveRate * 100).toFixed(2) + '%';
+
+    const tbody = document.getElementById('tbody');
+    tbody.innerHTML = '';
+    let prevN = 0;
+
+    TARGETS.forEach((target, i) => {
+      const n = periodsForTarget(effectiveRate, target);
+      const pct = target * 100;
+
+      const tr = document.createElement('tr');
+
+      const tdTarget = document.createElement('td');
+      tdTarget.style.padding = '0';
+      const cellWrap = document.createElement('div');
+      cellWrap.className = 'col-cum bar-cell';
+      cellWrap.style.padding = '9px 16px';
+      cellWrap.style.setProperty('--bar-pct', (target * 100).toFixed(2) + '%');
+      const bar = document.createElement('div');
+      bar.className = 'bar-bg';
+      const label = document.createElement('span');
+      label.className = 'bar-val';
+      label.textContent = pct === 99 ? '≥99%' : `≥${pct}%`;
+      cellWrap.appendChild(bar);
+      cellWrap.appendChild(label);
+      tdTarget.appendChild(cellWrap);
+
+      const tdN = document.createElement('td');
+      tdN.className = 'col-single';
+      if (i === 0 || prevN === Infinity || n === Infinity) {
+        tdN.textContent = n === Infinity ? '∞' : n.toLocaleString();
+      } else {
+        const delta = n - prevN;
+        const deltaPercent = ((delta / prevN) * 100).toFixed(0);
+        const deltaSpan = document.createElement('span');
+        deltaSpan.style.cssText = 'color: var(--muted); font-size: 11px; margin-right: 8px;';
+        deltaSpan.textContent = `+${delta.toLocaleString()} (${deltaPercent}%)`;
+        tdN.appendChild(deltaSpan);
+        tdN.appendChild(document.createTextNode(n.toLocaleString()));
+      }
+      prevN = n;
+
+      tr.appendChild(tdTarget);
+      tr.appendChild(tdN);
+      tbody.appendChild(tr);
+    });
+
+    updatePresetHighlights();
+  }
+
+  function incrementKillCount() {
+    const input = document.getElementById('killCount');
+    const current = parseInt(input.value) || 0;
+    input.value = current + 1;
+    updateSkulls();
+  }
+
+  function decrementKillCount() {
+    const input = document.getElementById('killCount');
+    const current = parseInt(input.value) || 0;
+    input.value = Math.max(0, current - 1);
+    updateSkulls();
+  }
+
+  document.getElementById('killCount').addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      incrementKillCount();
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      decrementKillCount();
+    }
+  });
+
+  update();
+  updateThemeClass();
+  initializeRandomColors();
+  updateSkulls();
+</script>
+</body>
+</html>
