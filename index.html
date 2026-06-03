@@ -6,10 +6,7 @@
 <title>Cumulative Probability</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --rainbow-gradient: linear-gradient(90deg, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982);
-  }
-  :root[data-theme="dark"] {
+:root[data-theme="dark"] {
     --bg: #0e0f11;
     --surface: #16181c;
     --border: #2a2d34;
@@ -168,6 +165,7 @@
     border-radius: 4px;
     outline: none;
     transition: border-color 0.15s;
+    text-align: center;
   }
   .field input:focus { border-color: var(--accent); }
   .field input.invalid { border-color: #e05555; }
@@ -268,8 +266,68 @@
     from { background-position: 100% 0%; }
     to   { background-position: 0% 0%; }
   }
+  @keyframes hue-fwd {
+    from { filter: hue-rotate(0deg); }
+    to   { filter: hue-rotate(360deg); }
+  }
 
   .col-delta { color: var(--muted); font-size: 11px; margin-right: 8px; }
+
+  .kill-slider-wrap {
+    margin-top: 24px;
+    width: 100%;
+  }
+  .kill-slider-wrap label {
+    display: block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  #killSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  #killSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 16px;
+    background: var(--accent);
+    cursor: pointer;
+    clip-path: polygon(0% 100%, 100% 100%, 50% 0%);
+    margin-top: 8px;
+  }
+  #killSlider::-moz-range-thumb {
+    width: 20px;
+    height: 16px;
+    background: var(--accent);
+    cursor: pointer;
+    border: none;
+    clip-path: polygon(0% 100%, 100% 100%, 50% 0%);
+  }
+  #killSlider::-webkit-slider-runnable-track {
+    background: linear-gradient(to right,
+      var(--accent) 0%,
+      var(--accent) calc(var(--slider-val, 0) * 1%),
+      var(--border) calc(var(--slider-val, 0) * 1%)
+    );
+    height: 4px;
+    border-radius: 2px;
+  }
+
+  .row-highlight td:nth-child(1) {
+    border-left: 2px solid var(--accent);
+  }
 
 
   .bar-val { font-weight: 600; color: var(--accent); }
@@ -341,10 +399,19 @@
     <tbody id="tbody"></tbody>
   </table>
 
+  <div class="kill-slider-wrap">
+    <label>Kill Progress</label>
+    <div style="display: flex; justify-content: center;">
+      <div style="width: 90%;">
+        <input type="range" id="killSlider" min="0" max="100" step="5" value="0" oninput="onSliderInput()">
+      </div>
+    </div>
+  </div>
+
   <div style="margin-top: 24px; display: flex; flex-direction: column; align-items: center;">
     <div class="field" style="width: 50%;">
       <label>Kill Count</label>
-      <input type="number" id="killCount" value="" placeholder="e.g. 500" oninput="updateSkulls()" min="0" title="Still sane, exile?">
+      <input type="number" id="killCount" value="" placeholder="e.g. 500" oninput="onKillCountInput()" min="0" title="Still sane, exile?">
     </div>
     <div id="skullDisplay" style="margin-top: 16px; text-align: center;">
       <div style="display: flex; justify-content: center; align-items: center; gap: 4px; flex-wrap: wrap;" id="skullRow"></div>
@@ -384,23 +451,7 @@
     return options[Math.floor(Math.random() * options.length)];
   }
 
-  function getRandomRainbowGradient() {
-    const baseColors = ['#E40303', '#FF8C00', '#FFED00', '#008026', '#24408E', '#732982'];
-    const startIdx = Math.floor(Math.random() * baseColors.length);
-    const rotated = [...baseColors.slice(startIdx), ...baseColors.slice(0, startIdx)];
-    return `linear-gradient(90deg, ${rotated.join(', ')})`;
-  }
-
-  function initializeRandomColors() {
-    const html = document.documentElement;
-    const current = html.getAttribute('data-theme');
-    if (current === 'rainbow' || current === 'rainbow-light') {
-      const gradient = getRandomRainbowGradient();
-      document.documentElement.style.setProperty('--rainbow-gradient', gradient);
-    }
-  }
-
-  function updatePresetHighlights() {
+function updatePresetHighlights() {
     const baseVal = parseFloat(document.getElementById('baseRate').value.trim());
     const mulVal  = parseFloat(document.getElementById('multiplier').value.trim());
     document.querySelectorAll('[data-base]').forEach(btn => {
@@ -463,17 +514,47 @@
     rainbowMode = !rainbowMode;
     updateThemeClass();
     document.getElementById('rainbowBtn').textContent = rainbowMode ? '❓ Y r u ghae?' : '🌈 Im hella ghae';
-    if (rainbowMode) {
-      initializeRandomColors();
-    }
   }
 
   let lastEffectiveRate = 0;
+  let lastMaxKills = 0;
+
+function updateSliderTrack(pct) {
+    document.getElementById('killSlider').style.setProperty('--slider-val', pct);
+  }
+
+  function onSliderInput() {
+    const pct = parseInt(document.getElementById('killSlider').value);
+    updateSliderTrack(pct);
+    if (lastMaxKills <= 0) return;
+    const kills = Math.round((pct / 100) * lastMaxKills);
+    document.getElementById('killCount').value = kills > 0 ? kills : '';
+    updateSkulls();
+  }
+
+  function onKillCountInput() {
+    updateSkulls();
+    syncSliderToKillCount();
+  }
+
+  function syncSliderToKillCount() {
+    if (lastMaxKills <= 0) return;
+    const kills = parseInt(document.getElementById('killCount').value);
+    if (isNaN(kills) || kills < 0) {
+      document.getElementById('killSlider').value = 0;
+      updateSliderTrack(0);
+      return;
+    }
+    const pct = Math.min(Math.round((kills / lastMaxKills) * 100), 100);
+    // Snap to nearest 5
+    const snapped = Math.round(pct / 5) * 5;
+    document.getElementById('killSlider').value = snapped;
+    updateSliderTrack(snapped);
+  }
 
   function updateSkulls() {
     const killRaw = document.getElementById('killCount').value.trim();
     const kills = parseInt(killRaw);
-    const display = document.getElementById('skullDisplay');
     const row = document.getElementById('skullRow');
     const lbl = document.getElementById('skullLabel');
 
@@ -496,6 +577,7 @@
       }
       lbl.textContent = '';
       document.getElementById('memeLabel').textContent = '';
+      document.querySelectorAll('#tbody tr').forEach(tr => tr.classList.remove('row-highlight'));
       return;
     }
     const prob = cumProb(lastEffectiveRate, kills);
@@ -531,6 +613,17 @@
 
     lbl.textContent = `~${(prob * 100).toFixed(2)}% cumulative probability`;
     document.getElementById('memeLabel').textContent = getMeme(prob * 100);
+    syncSliderToKillCount();
+
+    // Highlight the row corresponding to the highest threshold the user has reached
+    document.querySelectorAll('#tbody tr').forEach(tr => tr.classList.remove('row-highlight'));
+    const rows = document.querySelectorAll('#tbody tr');
+    let highlightRow = null;
+    TARGETS.forEach((target, i) => {
+      const n = periodsForTarget(lastEffectiveRate, target);
+      if (kills >= n) highlightRow = rows[i];
+    });
+    if (highlightRow) highlightRow.classList.add('row-highlight');
   }
 
   function periodsForTarget(p, target) {
@@ -568,16 +661,10 @@
     }
     errEl.textContent = '';
 
-    // Build rows for each multiplier step up to max, showing one row per target probability
-    // Columns: target %, periods needed (at base rate), single-period prob at that multiplier step? 
-    // Re-read: "multiplier of this base rate e.g. 5, 10, 20"
-    // Interpretation: user sets base rate and a multiplier; effective per-period rate = base * multiplier
-    // Table shows, for each target cumulative probability threshold, how many periods are needed.
-
     const effectiveRate = Math.min(base * mul, 0.9999999);
 
     lastEffectiveRate = effectiveRate;
-    updateSkulls();
+    lastMaxKills = periodsForTarget(effectiveRate, 0.99);
 
     document.getElementById('effectiveRateDisplay').textContent = (effectiveRate * 100).toFixed(2) + '%';
 
@@ -666,12 +753,12 @@
       tbody.appendChild(tr);
     });
 
+    updateSkulls();
     updatePresetHighlights();
   }
 
   update();
   updateThemeClass();
-  initializeRandomColors();
   updateSkulls();
 </script>
 </body>
