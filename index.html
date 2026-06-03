@@ -10,52 +10,52 @@
     --rainbow-gradient: linear-gradient(90deg, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982);
   }
   :root[data-theme="dark"] {
-    --bg: #1a1815;
-    --surface: #22201d;
-    --border: #3a3632;
-    --text: #e8e6e1;
-    --muted: #8a8580;
-    --accent: #d97757;
-    --accent-dim: rgba(217,119,87,0.12);
-    --row-alt: #1f1d1a;
-    --input-bg: #252320;
-    --header-bg: #1e1c19;
+    --bg: #0e0f11;
+    --surface: #16181c;
+    --border: #2a2d34;
+    --text: #e2e4e9;
+    --muted: #5a5f6e;
+    --accent: #4fc3a1;
+    --accent-dim: rgba(79,195,161,0.12);
+    --row-alt: #13151a;
+    --input-bg: #1e2028;
+    --header-bg: #1a1c22;
   }
   :root[data-theme="light"] {
-    --bg: #f5f0eb;
-    --surface: #faf8f5;
-    --border: #e4ddd6;
-    --text: #2c2420;
-    --muted: #8a7d75;
-    --accent: #a0522d;
-    --accent-dim: rgba(160,82,45,0.08);
-    --row-alt: #f0ebe6;
-    --input-bg: #ede8e2;
-    --header-bg: #e8e3dd;
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --border: #dde0e8;
+    --text: #1a1d26;
+    --muted: #8a8f9e;
+    --accent: #1a8f6f;
+    --accent-dim: rgba(26,143,111,0.08);
+    --row-alt: #f9fafb;
+    --input-bg: #f0f1f4;
+    --header-bg: #eaecf0;
   }
   :root[data-theme="rainbow"] {
-    --bg: #1a1815;
-    --surface: #22201d;
-    --border: #3a3632;
-    --text: #e8e6e1;
-    --muted: #8a8580;
-    --accent: #d97757;
-    --accent-dim: rgba(217,119,87,0.12);
-    --row-alt: #1f1d1a;
-    --input-bg: #252320;
-    --header-bg: #1e1c19;
+    --bg: #0e0f11;
+    --surface: #16181c;
+    --border: #2a2d34;
+    --text: #e2e4e9;
+    --muted: #5a5f6e;
+    --accent: #4fc3a1;
+    --accent-dim: rgba(79,195,161,0.12);
+    --row-alt: #13151a;
+    --input-bg: #1e2028;
+    --header-bg: #1a1c22;
   }
   :root[data-theme="rainbow-light"] {
-    --bg: #f5f0eb;
-    --surface: #faf8f5;
-    --border: #e4ddd6;
-    --text: #2c2420;
-    --muted: #8a7d75;
-    --accent: #a0522d;
-    --accent-dim: rgba(160,82,45,0.08);
-    --row-alt: #f0ebe6;
-    --input-bg: #ede8e2;
-    --header-bg: #e8e3dd;
+    --bg: #f4f5f7;
+    --surface: #ffffff;
+    --border: #dde0e8;
+    --text: #1a1d26;
+    --muted: #8a8f9e;
+    --accent: #1a8f6f;
+    --accent-dim: rgba(26,143,111,0.08);
+    --row-alt: #f9fafb;
+    --input-bg: #f0f1f4;
+    --header-bg: #eaecf0;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -266,6 +266,8 @@
     to   { background-position: 0% 0%; }
   }
 
+  .col-delta { color: var(--muted); font-size: 11px; margin-right: 8px; }
+
   .bar-val { font-weight: 600; color: var(--accent); }
   :root[data-theme="rainbow"] .bar-val,
   :root[data-theme="rainbow-light"] .bar-val {
@@ -375,14 +377,6 @@
 
     const options = MEME_BUCKETS[bucket];
     return options[Math.floor(Math.random() * options.length)];
-  }
-
-  function getRandomColor() {
-    const colors = [
-      '#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3',
-      '#ff1493', '#00bfff', '#32cd32', '#ff69b4', '#00ced1', '#ffd700', '#ff4500'
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
   }
 
   function getRandomRainbowGradient() {
@@ -530,10 +524,6 @@
     return 1 - Math.pow(1 - p, n);
   }
 
-  function fmt(v, decimals) {
-    return (v * 100).toFixed(decimals) + '%';
-  }
-
   function update() {
     const baseRaw = document.getElementById('baseRate').value.trim();
     const mulRaw  = document.getElementById('multiplier').value.trim();
@@ -604,7 +594,7 @@
         const delta = n - prevN;
         const deltaPercent = ((delta / prevN) * 100).toFixed(0);
         const deltaSpan = document.createElement('span');
-        deltaSpan.style.cssText = 'color: var(--muted); font-size: 11px; margin-right: 8px;';
+        deltaSpan.className = 'col-delta';
         deltaSpan.textContent = `+${delta.toLocaleString()} (${deltaPercent}%)`;
         tdN.appendChild(deltaSpan);
         tdN.appendChild(document.createTextNode(n.toLocaleString()));
@@ -618,30 +608,6 @@
 
     updatePresetHighlights();
   }
-
-  function incrementKillCount() {
-    const input = document.getElementById('killCount');
-    const current = parseInt(input.value) || 0;
-    input.value = current + 1;
-    updateSkulls();
-  }
-
-  function decrementKillCount() {
-    const input = document.getElementById('killCount');
-    const current = parseInt(input.value) || 0;
-    input.value = Math.max(0, current - 1);
-    updateSkulls();
-  }
-
-  document.getElementById('killCount').addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      incrementKillCount();
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      decrementKillCount();
-    }
-  });
 
   update();
   updateThemeClass();
