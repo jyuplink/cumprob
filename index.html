@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="frame-ancestors 'none'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="no-referrer">
 <title>Cumulative Probability</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
@@ -439,12 +442,18 @@
     ['WHAT DID THIS COST', 'HOLLOW BUT WON', 'FREEDOM AT WHAT PRICE', 'IT\'S OVER']
   ];
 
+  const lastMemeIdx = new Array(MEME_BUCKETS.length).fill(-1);
+
   function getMeme(probPercent) {
-    let idx;
-    if (probPercent >= 99) idx = 10;
-    else idx = Math.min(Math.floor(probPercent / 10), 9);
-    const options = MEME_BUCKETS[idx];
-    return options[Math.floor(Math.random() * options.length)];
+    let bucket;
+    if (probPercent >= 99) bucket = 10;
+    else bucket = Math.min(Math.floor(probPercent / 10), 9);
+    const options = MEME_BUCKETS[bucket];
+    const prev = lastMemeIdx[bucket];
+    let pick;
+    do { pick = Math.floor(Math.random() * options.length); } while (options.length > 1 && pick === prev);
+    lastMemeIdx[bucket] = pick;
+    return options[pick];
   }
 
 function updatePresetHighlights() {
