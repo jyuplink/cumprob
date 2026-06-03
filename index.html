@@ -204,7 +204,9 @@
     font-weight: 600;
     border-bottom: 1px solid var(--border);
   }
-  th:first-child { width: 45%; }
+  th:nth-child(1) { width: 15%; }
+  th:nth-child(2) { width: 65%; }
+  th:nth-child(3) { width: 20%; }
   th:not(:first-child) { text-align: right; }
 
   td {
@@ -330,8 +332,9 @@
   <table>
     <thead>
       <tr>
-        <th>Target Cum. Prob.</th>
-        <th>Periods Required</th>
+        <th>Cum. Prob.</th>
+        <th>Delta (Next Tier)</th>
+        <th>Periods Req.</th>
       </tr>
     </thead>
     <tbody id="tbody"></tbody>
@@ -581,40 +584,80 @@
     tbody.innerHTML = '';
     let prevN = 0;
 
+    // First pass: calculate all deltas to find max for bar scaling
+    const deltas = [];
+    TARGETS.forEach((target, i) => {
+      const n = periodsForTarget(effectiveRate, target);
+      if (i === 0 || prevN === Infinity || n === Infinity) {
+        deltas.push(0);
+      } else {
+        deltas.push(n - prevN);
+      }
+      prevN = n;
+    });
+    const maxDelta = Math.max(...deltas);
+
+    // Second pass: create rows with delta bars
+    prevN = 0;
     TARGETS.forEach((target, i) => {
       const n = periodsForTarget(effectiveRate, target);
       const pct = target * 100;
 
       const tr = document.createElement('tr');
 
+      const tdProb = document.createElement('td');
+      tdProb.className = 'col-periods';
+      tdProb.textContent = pct === 99 ? '≥99%' : `≥${pct}%`;
+      tr.appendChild(tdProb);
+
       const tdTarget = document.createElement('td');
       tdTarget.style.padding = '0';
       const cellWrap = document.createElement('div');
       cellWrap.className = 'col-cum bar-cell';
-      cellWrap.style.padding = '9px 16px';
-      cellWrap.style.setProperty('--bar-pct', (target * 100).toFixed(2) + '%');
+      cellWrap.style.padding = '0';
+
+      let barLabel = '';
+      let barPct = 0;
+
+      if (i === 0 || prevN === Infinity || n === Infinity) {
+        barLabel = '';
+        barPct = 0;
+      } else {
+        const delta = n - prevN;
+        const deltaPercent = ((delta / prevN) * 100).toFixed(0);
+        barLabel = `+${delta.toLocaleString()} (${deltaPercent}%)`;
+        barPct = (delta / maxDelta) * 100;
+      }
+
+      cellWrap.style.setProperty('--bar-pct', barPct.toFixed(2) + '%');
       const bar = document.createElement('div');
       bar.className = 'bar-bg';
       const label = document.createElement('span');
       label.className = 'bar-val';
-      label.textContent = pct === 99 ? '≥99%' : `≥${pct}%`;
+      label.style.padding = '9px 16px';
+      label.style.position = 'relative';
+      label.style.display = 'block';
+
+      if (barLabel) {
+        const parts = barLabel.match(/^(.+)\s(\(.+?\))$/);
+        if (parts) {
+          label.textContent = parts[1] + ' ';
+          const pctSpan = document.createElement('span');
+          pctSpan.textContent = parts[2];
+          pctSpan.style.color = 'var(--muted)';
+          label.appendChild(pctSpan);
+        } else {
+          label.textContent = barLabel;
+        }
+      }
+
       cellWrap.appendChild(bar);
       cellWrap.appendChild(label);
       tdTarget.appendChild(cellWrap);
 
       const tdN = document.createElement('td');
       tdN.className = 'col-single';
-      if (i === 0 || prevN === Infinity || n === Infinity) {
-        tdN.textContent = n === Infinity ? '∞' : n.toLocaleString();
-      } else {
-        const delta = n - prevN;
-        const deltaPercent = ((delta / prevN) * 100).toFixed(0);
-        const deltaSpan = document.createElement('span');
-        deltaSpan.className = 'col-delta';
-        deltaSpan.textContent = `+${delta.toLocaleString()} (${deltaPercent}%)`;
-        tdN.appendChild(deltaSpan);
-        tdN.appendChild(document.createTextNode(n.toLocaleString()));
-      }
+      tdN.textContent = n === Infinity ? '∞' : n.toLocaleString();
       prevN = n;
 
       tr.appendChild(tdTarget);
