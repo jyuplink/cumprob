@@ -290,7 +290,8 @@
   #killSlider {
     -webkit-appearance: none;
     appearance: none;
-    width: 100%;
+    width: calc(100% + 20px);
+    margin-left: -10px;
     height: 4px;
     background: var(--border);
     border-radius: 2px;
@@ -411,7 +412,7 @@
   <div style="margin-top: 24px; display: flex; flex-direction: column; align-items: center;">
     <div class="field" style="width: 50%;">
       <label>Kill Count</label>
-      <input type="number" id="killCount" value="" placeholder="e.g. 500" oninput="onKillCountInput()" min="0" title="Still sane, exile?">
+      <input type="number" id="killCount" value="0" placeholder="e.g. 500" oninput="onKillCountInput()" min="0" title="Still sane, exile?">
     </div>
     <div id="skullDisplay" style="margin-top: 16px; text-align: center;">
       <div style="display: flex; justify-content: center; align-items: center; gap: 4px; flex-wrap: wrap;" id="skullRow"></div>
@@ -424,30 +425,25 @@
 <script>
   const TARGETS = [0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 0.99];
 
-  const MEME_BUCKETS = {
-    '1-20': ['MAXIMUM COPIUM', 'FARMING HOPIUM', 'THIS WILL BE EASY', 'DELUSION% SPEEDRUN'],
-    '21-40': ['PAIN BEGINS', 'HOPIUM STOCKS UP 📈', 'TRUST BRO JUST GRIND', 'HUFFING THAT COPIUM'],
-    '41-60': ['THE GRIND AWAKENS', 'HALFWAY TO SUFFERING', 'COIN FLIP WITH MY SOUL', 'PAIN OR GLORY'],
-    '61-80': ['PAIN IS REAL NOW', 'NO TURNING BACK', 'SPEEDRUN LOOKING CLEAN', 'SUFFERING.EXE'],
-    '81-95': ['ALMOST THERE (AT COST)', 'DON\'T BREAK NOW', 'LOCKED IN MISERY', 'SO CLOSE SO TIRED'],
-    '96-98': ['ONE MORE PUSH', 'THE END IN SIGHT', 'WORTH IT? ASKING', 'FINAL FORM SUFFERING'],
-    '99': ['THE 1% THAT BREAKS YOU', 'ONE MORE TIME', 'GAME READS YOUR TEARS', 'LAST CHANCE CASINO'],
-    '100': ['IT\'S OVER', 'WHAT DID THIS COST', 'HOLLOW BUT WON', 'FREEDOM AT WHAT PRICE']
-  };
+  const MEME_BUCKETS = [
+    ['THIS WILL BE EASY', 'FARMING HOPIUM', 'DELUSION% SPEEDRUN', 'MAXIMUM COPIUM'],
+    ['TRUST BRO JUST GRIND', 'HOPIUM STOCKS UP 📈', 'HUFFING THAT COPIUM', 'PAIN BEGINS'],
+    ['THE GRIND AWAKENS', 'PAIN OR GLORY', 'COIN FLIP WITH MY SOUL', 'REALITY LOADING...'],
+    ['HALFWAY TO SUFFERING', 'NO TURNING BACK', 'PAIN IS REAL NOW', 'SPEEDRUN LOOKING CLEAN'],
+    ['SUFFERING.EXE', 'SOUL SOLD. RECEIPT LOST.', 'ODDS NOT IN YOUR FAVOUR', 'THE GRIND NEVER ENDS'],
+    ['ALMOST THERE (AT COST)', 'DON\'T BREAK NOW', 'LOCKED IN MISERY', 'SO CLOSE SO TIRED'],
+    ['WORTH IT? ASKING', 'ONE MORE PUSH', 'DIGNITY SOLD SEPARATELY', 'THE END IN SIGHT'],
+    ['FINAL FORM SUFFERING', 'LAST CHANCE CASINO', 'GAME READS YOUR TEARS', 'ONE MORE TIME'],
+    ['THE 1% THAT BREAKS YOU', 'WHAT IS SLEEP', 'HOLLOW INSIDE', 'ITEM NOT FOUND. NEITHER IS HOPE.'],
+    ['SEND HELP', 'WHY ARE YOU LIKE THIS', 'I HAVE BECOME THE GRIND', 'EXISTENCE IS SUFFERING'],
+    ['WHAT DID THIS COST', 'HOLLOW BUT WON', 'FREEDOM AT WHAT PRICE', 'IT\'S OVER']
+  ];
 
   function getMeme(probPercent) {
-    let bucket;
-    if (probPercent < 1) return '';
-    else if (probPercent <= 20) bucket = '1-20';
-    else if (probPercent <= 40) bucket = '21-40';
-    else if (probPercent <= 60) bucket = '41-60';
-    else if (probPercent <= 80) bucket = '61-80';
-    else if (probPercent <= 95) bucket = '81-95';
-    else if (probPercent < 99) bucket = '96-98';
-    else if (probPercent === 99) bucket = '99';
-    else bucket = '100';
-
-    const options = MEME_BUCKETS[bucket];
+    let idx;
+    if (probPercent >= 100) idx = 10;
+    else idx = Math.min(Math.floor(probPercent / 10), 9);
+    const options = MEME_BUCKETS[idx];
     return options[Math.floor(Math.random() * options.length)];
   }
 
@@ -527,8 +523,8 @@ function updateSliderTrack(pct) {
     const pct = parseInt(document.getElementById('killSlider').value);
     updateSliderTrack(pct);
     if (lastMaxKills <= 0) return;
-    const kills = Math.round((pct / 100) * lastMaxKills);
-    document.getElementById('killCount').value = kills > 0 ? kills : '';
+    const kills = pct >= 100 ? lastMaxKills : Math.round((pct / 100) * lastMaxKills);
+    document.getElementById('killCount').value = kills;
     updateSkulls();
   }
 
@@ -578,6 +574,8 @@ function updateSliderTrack(pct) {
       lbl.textContent = '';
       document.getElementById('memeLabel').textContent = '';
       document.querySelectorAll('#tbody tr').forEach(tr => tr.classList.remove('row-highlight'));
+      document.getElementById('killSlider').value = 0;
+      updateSliderTrack(0);
       return;
     }
     const prob = cumProb(lastEffectiveRate, kills);
@@ -759,6 +757,7 @@ function updateSliderTrack(pct) {
 
   update();
   updateThemeClass();
+  updateSliderTrack(0);
   updateSkulls();
 </script>
 </body>
