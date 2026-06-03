@@ -211,8 +211,8 @@
   tr:last-child td { border-bottom: none; }
   tr:nth-child(even) td { background: var(--row-alt); }
 
-  .col-periods { color: var(--muted); }
-  .col-single { color: var(--text); }
+  .col-periods { color: var(--text); }
+  .col-single { color: var(--accent); }
   .col-cum { font-weight: 600; color: var(--accent); }
 
   .skull-wrap {
@@ -323,7 +323,7 @@
     border-left: 2px solid var(--accent);
   }
 
-  .bar-val { font-weight: 600; color: var(--accent); }
+  .bar-val { font-weight: 400; color: var(--text); }
   :root[data-theme="rainbow"] .bar-val,
   :root[data-theme="rainbow-light"] .bar-val {
     background: linear-gradient(90deg, #E40303, #FF8C00, #FFED00, #008026, #24408E, #732982);
