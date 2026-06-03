@@ -206,8 +206,8 @@
     border-bottom: 1px solid var(--border);
   }
   th:nth-child(1) { white-space: nowrap; }
-  th:nth-child(2) { width: 100%; }
-  th:nth-child(3) { white-space: nowrap; }
+  th:nth-child(2) { white-space: nowrap; }
+  th:nth-child(3) { width: 100%; }
 
   td {
     font-family: 'IBM Plex Mono', monospace;
@@ -215,7 +215,8 @@
     padding: 9px 16px;
     border-bottom: 1px solid var(--border);
   }
-  td:nth-child(3) { text-align: right; }
+  td:nth-child(1) { text-align: center; }
+  td:nth-child(2) { text-align: right; }
   tr:last-child td { border-bottom: none; }
   tr:nth-child(even) td { background: var(--row-alt); }
 
@@ -333,8 +334,8 @@
     <thead>
       <tr>
         <th>Cum. Prob.</th>
+        <th>Kills Req.</th>
         <th>Delta (Next Tier)</th>
-        <th>Periods Req.</th>
       </tr>
     </thead>
     <tbody id="tbody"></tbody>
@@ -660,8 +661,8 @@
       tdN.textContent = n === Infinity ? '∞' : n.toLocaleString();
       prevN = n;
 
-      tr.appendChild(tdTarget);
       tr.appendChild(tdN);
+      tr.appendChild(tdTarget);
       tbody.appendChild(tr);
     });
 
