@@ -441,7 +441,7 @@
 
   function getMeme(probPercent) {
     let idx;
-    if (probPercent >= 100) idx = 10;
+    if (probPercent >= 99) idx = 10;
     else idx = Math.min(Math.floor(probPercent / 10), 9);
     const options = MEME_BUCKETS[idx];
     return options[Math.floor(Math.random() * options.length)];
