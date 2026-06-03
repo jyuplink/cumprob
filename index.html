@@ -284,8 +284,8 @@
   <header>
     <h1>Cumulative Probability</h1>
     <div style="display: flex; gap: 8px;">
-      <button class="toggle-btn" onclick="toggleTheme()" id="themeBtn">☀ Light</button>
-      <button class="toggle-btn" onclick="toggleRainbow()" id="rainbowBtn">🏳️‍🌈 Im hella ghae</button>
+      <button class="toggle-btn" onclick="toggleRainbow()" id="rainbowBtn" style="min-width: 110px;">🌈 Im hella ghae</button>
+      <button class="toggle-btn" onclick="toggleTheme()" id="themeBtn" style="min-width: 60px;">☀ Light</button>
     </div>
   </header>
 
@@ -444,7 +444,7 @@
   function toggleRainbow() {
     rainbowMode = !rainbowMode;
     updateThemeClass();
-    document.getElementById('rainbowBtn').textContent = rainbowMode ? '❓ Y r u ghae?' : '🏳️‍🌈 Im hella ghae';
+    document.getElementById('rainbowBtn').textContent = rainbowMode ? '❓ Y r u ghae?' : '🌈 Im hella ghae';
     if (rainbowMode) {
       initializeRandomColors();
     }
