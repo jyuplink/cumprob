@@ -677,20 +677,6 @@ function updateSliderTrack(pct) {
     tbody.innerHTML = '';
     let prevN = 0;
 
-    // First pass: calculate all deltas to find max for bar scaling
-    const deltas = [];
-    TARGETS.forEach((target, i) => {
-      const n = periodsForTarget(effectiveRate, target);
-      if (i === 0 || prevN === Infinity || n === Infinity) {
-        deltas.push(0);
-      } else {
-        deltas.push(n - prevN);
-      }
-      prevN = n;
-    });
-    const maxDelta = Math.max(...deltas);
-
-    // Second pass: create rows with delta bars
     prevN = 0;
     TARGETS.forEach((target, i) => {
       const n = periodsForTarget(effectiveRate, target);
@@ -713,13 +699,13 @@ function updateSliderTrack(pct) {
       let barPct = 0;
 
       if (i === 0 || prevN === Infinity || n === Infinity) {
-        barLabel = '';
-        barPct = 0;
+        barLabel = ' ';
+        barPct = n === Infinity ? 0 : (n / lastMaxKills) * 100;
       } else {
         const delta = n - prevN;
         const deltaPercent = ((delta / prevN) * 100).toFixed(0);
         barLabel = `+${delta.toLocaleString()} (${deltaPercent}%)`;
-        barPct = (delta / maxDelta) * 100;
+        barPct = (n / lastMaxKills) * 100;
       }
 
       cellWrap.style.setProperty('--bar-pct', barPct.toFixed(2) + '%');
