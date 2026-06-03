@@ -431,6 +431,19 @@
   let currentTheme = 'dark'; // 'dark' or 'light'
   let rainbowMode = false;
 
+  const SKULL_TOOLTIPS = [
+    'I am the apex of this reality',
+    'This is inevitable',
+    'I will show you true power',
+    'Your resistance is futile',
+    'You cannot comprehend what I have become',
+    'Everything bends to my will',
+    'Witness my true form',
+    'Your mind cannot contain the truth',
+    'I have remade reality in my image',
+    'There is no escape. There never was.'
+  ];
+
   function updateThemeClass() {
     const theme = rainbowMode ? (currentTheme === 'light' ? 'rainbow-light' : 'rainbow') : currentTheme;
     document.documentElement.setAttribute('data-theme', theme);
@@ -465,7 +478,7 @@
       for (let i = 0; i < 10; i++) {
         const wrap = document.createElement('span');
         wrap.className = 'skull-wrap';
-        if (i === 9) wrap.title = 'The apex of this reality';
+        wrap.title = SKULL_TOOLTIPS[i];
         const base = document.createElement('span');
         base.className = 'skull-base';
         base.textContent = i === 9 ? '⚰️' : '💀';
@@ -488,7 +501,7 @@
     for (let i = 0; i < 10; i++) {
       const wrap = document.createElement('span');
       wrap.className = 'skull-wrap';
-      if (i === 9) wrap.title = 'The apex of this reality';
+      wrap.title = SKULL_TOOLTIPS[i];
 
       const base = document.createElement('span');
       base.className = 'skull-base';
