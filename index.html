@@ -407,7 +407,7 @@
     <label>Kill Progress</label>
     <div style="display: flex; justify-content: center;">
       <div style="width: 90%;">
-        <input type="range" id="killSlider" min="0" max="100" step="5" value="0" oninput="onSliderInput()">
+        <input type="range" id="killSlider" min="0" max="100" step="1" value="0" oninput="onSliderInput()">
       </div>
     </div>
   </div>
@@ -549,10 +549,8 @@ function updateSliderTrack(pct) {
       return;
     }
     const pct = Math.min(Math.round((kills / lastMaxKills) * 100), 100);
-    // Snap to nearest 5
-    const snapped = Math.round(pct / 5) * 5;
-    document.getElementById('killSlider').value = snapped;
-    updateSliderTrack(snapped);
+    document.getElementById('killSlider').value = pct;
+    updateSliderTrack(pct);
   }
 
   function updateSkulls() {
@@ -617,7 +615,8 @@ function updateSliderTrack(pct) {
     }
 
     lbl.textContent = `~${(prob * 100).toFixed(2)}% cumulative probability`;
-    document.getElementById('memeLabel').textContent = getMeme(prob * 100);
+    const killPct = lastMaxKills > 0 ? Math.min((kills / lastMaxKills) * 100, 100) : 0;
+    document.getElementById('memeLabel').textContent = getMeme(killPct);
     syncSliderToKillCount();
 
     // Highlight the row corresponding to the highest threshold the user has reached
