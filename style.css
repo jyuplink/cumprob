@@ -1,56 +1,56 @@
 :root[data-theme="dark"] {
-    --bg: #0e0f11;
-    --surface: #16181c;
-    --border: #2a2d34;
-    --text: #e2e4e9;
-    --muted: #5a5f6e;
-    --accent: #4fc3a1;
-    --accent-dim: rgba(79,195,161,0.12);
-    --row-alt: #13151a;
-    --input-bg: #1e2028;
-    --header-bg: #1a1c22;
+    --bg: #141414;
+    --surface: #1c1c1b;
+    --border: #2b2b2a;
+    --text: #f5f5f3;
+    --muted: #6c6b68;
+    --accent: #d97757;
+    --accent-dim: rgba(217,119,87,0.12);
+    --row-alt: #191918;
+    --input-bg: #232322;
+    --header-bg: #232322;
   }
   :root[data-theme="light"] {
-    --bg: #f4f5f7;
+    --bg: #f9f9f7;
     --surface: #ffffff;
-    --border: #dde0e8;
-    --text: #1a1d26;
-    --muted: #8a8f9e;
-    --accent: #1a8f6f;
-    --accent-dim: rgba(26,143,111,0.08);
-    --row-alt: #f9fafb;
-    --input-bg: #f0f1f4;
-    --header-bg: #eaecf0;
+    --border: #e7e6e1;
+    --text: #1f1f1e;
+    --muted: #858380;
+    --accent: #d97757;
+    --accent-dim: rgba(217,119,87,0.12);
+    --row-alt: #f5f5f3;
+    --input-bg: #f5f5f3;
+    --header-bg: #eeede9;
   }
   :root[data-theme="rainbow"] {
-    --bg: #0e0f11;
-    --surface: #16181c;
-    --border: #2a2d34;
-    --text: #e2e4e9;
-    --muted: #5a5f6e;
-    --accent: #4fc3a1;
-    --accent-dim: rgba(79,195,161,0.12);
-    --row-alt: #13151a;
-    --input-bg: #1e2028;
-    --header-bg: #1a1c22;
+    --bg: #141414;
+    --surface: #1c1c1b;
+    --border: #2b2b2a;
+    --text: #f5f5f3;
+    --muted: #6c6b68;
+    --accent: #d97757;
+    --accent-dim: rgba(217,119,87,0.12);
+    --row-alt: #191918;
+    --input-bg: #232322;
+    --header-bg: #232322;
   }
   :root[data-theme="rainbow-light"] {
-    --bg: #f4f5f7;
+    --bg: #f9f9f7;
     --surface: #ffffff;
-    --border: #dde0e8;
-    --text: #1a1d26;
-    --muted: #8a8f9e;
-    --accent: #1a8f6f;
-    --accent-dim: rgba(26,143,111,0.08);
-    --row-alt: #f9fafb;
-    --input-bg: #f0f1f4;
-    --header-bg: #eaecf0;
+    --border: #e7e6e1;
+    --text: #1f1f1e;
+    --muted: #858380;
+    --accent: #d97757;
+    --accent-dim: rgba(217,119,87,0.12);
+    --row-alt: #f5f5f3;
+    --input-bg: #f5f5f3;
+    --header-bg: #eeede9;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><polygon points="16,2 30,10 16,18 2,10" fill="%234fc3a1" stroke="%230e0f11" stroke-width="1"/><polygon points="30,10 30,25 16,33 16,18" fill="%232a7a64" stroke="%230e0f11" stroke-width="1"/><polygon points="2,10 16,18 16,33 2,25" fill="%231a5040" stroke="%230e0f11" stroke-width="1"/><circle cx="16" cy="10" r="1.8" fill="%230e0f11"/><circle cx="24" cy="15" r="1.5" fill="%23e2e4e9"/><circle cx="21" cy="24" r="1.5" fill="%23e2e4e9"/><circle cx="6" cy="15" r="1.5" fill="%234fc3a1"/><circle cx="9" cy="20" r="1.5" fill="%234fc3a1"/><circle cx="12" cy="25" r="1.5" fill="%234fc3a1"/></svg>') 16 16, auto;
+    cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><polygon points="16,2 30,10 16,18 2,10" fill="%23d97757" stroke="%23141414" stroke-width="1"/><polygon points="30,10 30,25 16,33 16,18" fill="%23a0563a" stroke="%23141414" stroke-width="1"/><polygon points="2,10 16,18 16,33 2,25" fill="%23703c28" stroke="%23141414" stroke-width="1"/><circle cx="16" cy="10" r="1.8" fill="%23141414"/><circle cx="24" cy="15" r="1.5" fill="%23f5f5f3"/><circle cx="21" cy="24" r="1.5" fill="%23f5f5f3"/><circle cx="6" cy="15" r="1.5" fill="%23d97757"/><circle cx="9" cy="20" r="1.5" fill="%23d97757"/><circle cx="12" cy="25" r="1.5" fill="%23d97757"/></svg>') 16 16, auto;
     background: var(--bg);
     color: var(--text);
     font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
